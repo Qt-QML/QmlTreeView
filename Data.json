@@ -1,0 +1,48 @@
+{
+    "data":[
+        {
+            "name": "Alens-A",
+            "birthday": "1900-01-01",
+            "progeniture": [
+                {
+                    "name": "Bob-A",
+                    "birthday": "1922-6-11",
+                    "progeniture": [
+                        {
+                            "name": "Catter-A",
+                            "birthday": "1946-6-11"
+                        },
+                        {
+                            "name": "Catter-B",
+                            "birthday": "1948-2-23"
+                        }
+                    ]
+                },
+                {
+                    "name": "Bob-B",
+                    "birthday": "1925-4-12"
+                },
+                {
+                    "name": "Bob-C",
+                    "birthday": "1927-4-12"
+                }
+            ]
+        },
+        {
+            "name": "Alens-B",
+            "birthday": "1901-08-05",
+            "progeniture": [
+                {
+                    "name": "Boss-A",
+                    "birthday": "1925-4-12",
+                    "progeniture": [
+                        {
+                            "name": "Cavid-A",
+                            "birthday": "1955-9-11"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
