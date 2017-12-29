@@ -7,25 +7,55 @@ QC14.TreeView {
     height: 480
     id: treeView
     alternatingRowColors: false
+//    headerVisible: false
     QC14.TableViewColumn {
         role: "name"
         title: "Name"
+        width: 200
     }
     QC14.TableViewColumn {
         role: "birthday"
         title: "Birthday"
+        width: 200
     }
     model: tModel
-    itemDelegate: Rectangle {
-        width: 200
-        implicitHeight: 20
-        Text {
-            text: styleData.value
-            color: styleData.value
+    readonly property color cellBackgroundColor: "#EDEDF0"
+    readonly property color cellCurrentRowColor: "#C4DEF4"
+    readonly property color cellPressedColor: "#32A6FF"
+    style: QCS14.TreeViewStyle {
+        activateItemOnSingleClick: true
+        backgroundColor: cellBackgroundColor
+        itemDelegate: Item {
+            width: 200
+            height: 80
+            Rectangle {
+                anchors.fill: parent
+                border.width: 1
+                border.color: "#7f838c"
+                color: isSelected ? cellPressedColor :cellBackgroundColor
+                //                                       (styleData.pressed ? cellCurrentRowColor : )
+                property bool isSelected: treeView.currentIndex === styleData.index
+                onIsSelectedChanged: {
+                    console.log(styleData.hasActiveFocus, styleData.index)
+                    if (isSelected) {
+                        forceActiveFocus()
+                    }
+                }
+                Text {
+                    text: styleData.value
+                    anchors.centerIn: parent
+                }
+            }
+        }
+
+        rowDelegate: Item {
+            width: 200
+            height: 30
+            Rectangle {
+                color: cellBackgroundColor
+                anchors.fill: parent
+            }
         }
     }
-//    rowDelegate: Item {
-//        width: treeView.width
-//    }
 }
 
