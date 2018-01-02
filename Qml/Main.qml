@@ -7,7 +7,7 @@ QC14.TreeView {
     height: 480
     id: treeView
     alternatingRowColors: false
-//    headerVisible: false
+    headerVisible: false
     QC14.TableViewColumn {
         role: "name"
         title: "Name"
@@ -33,17 +33,20 @@ QC14.TreeView {
                 border.width: 1
                 border.color: "#7f838c"
                 color: isSelected ? cellPressedColor :cellBackgroundColor
-                //                                       (styleData.pressed ? cellCurrentRowColor : )
+                // (styleData.pressed ? cellCurrentRowColor : )
                 property bool isSelected: treeView.currentIndex === styleData.index
-                onIsSelectedChanged: {
-                    console.log(styleData.hasActiveFocus, styleData.index)
-                    if (isSelected) {
-                        forceActiveFocus()
-                    }
-                }
-                Text {
+//                onIsSelectedChanged: {
+//                    console.log(styleData.hasActiveFocus, styleData.index)
+//                    if (isSelected) {
+//                        forceActiveFocus()
+//                    }
+//                }
+                TextEdit {
                     text: styleData.value
                     anchors.centerIn: parent
+                    onEditingFinished: {
+                        tModel.setData(styleData.index, text)
+                    }
                 }
             }
         }
@@ -54,6 +57,24 @@ QC14.TreeView {
             Rectangle {
                 color: cellBackgroundColor
                 anchors.fill: parent
+            }
+        }
+    }
+    Row {
+        anchors {
+            right: parent.right
+            bottom: parent.bottom
+        }
+        Button {
+            text: "load"
+            onClicked: {
+                tModel.loadDataFromJson(":/Data.json");
+            }
+        }
+        Button {
+            text: "save"
+            onClicked: {
+                tModel.saveDataToJson("Out.json");
             }
         }
     }

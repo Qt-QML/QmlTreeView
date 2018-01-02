@@ -25,9 +25,9 @@ public:
     int rowCount(const QModelIndex &parent) const override;
     bool hasChildren(const QModelIndex &parent) const override;
 
-//    bool setData(const QModelIndex &index, const QVariant &value, int role) override;
+    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
     QHash<int, QByteArray> roleNames() const override;
-//    Qt::ItemFlag flags(const QModelIndex &index) const override;
+    Qt::ItemFlags flags(const QModelIndex &index) const override;
 protected:
     TreeNode *getNode(const QModelIndex &index) const;
 private:

@@ -38,6 +38,26 @@ void addArrayToTree (TreeNode *node, const QJsonArray &array) {
         }
     }
 }
+void addTreeToArray (const TreeNode *node, QJsonArray &array) {
+    if (node) {
+        auto data = node->data();
+        QJsonObject obj;
+        if (data.length() >= 2) {
+            obj["name"] = data.at(0).toString();
+            obj["birthday"] = data.at(1).toString();
+        }
+        int count = node->childCount();
+        if (count > 0) {
+            QJsonArray arr;
+            for (int i = 0; i < count; ++i) {
+                addTreeToArray(node->child(i), arr);
+            }
+            obj["progeniture"] = arr;
+        }
+        array.append(obj);
+    }
+}
+
 QString TreeModel::loadDataFromJson(const QString &filePath) {
     QFile file(filePath);
     if (!file.open(QFile::ReadOnly)) {
@@ -51,16 +71,37 @@ QString TreeModel::loadDataFromJson(const QString &filePath) {
     if (doc.isNull()) {
         qWarning() << error.errorString();
     }
+
     auto rootObj = doc.object();
     const auto & array = rootObj.value("data").toArray();
-
+    emit beginResetModel();
     addArrayToTree(mRootNode, array);
-
+    emit endResetModel();
     return QString();
 }
 
 QString TreeModel::saveDataToJson(const QString &filePath) const {
     Q_UNUSED(filePath);
+    QFile file(filePath);
+    if (!file.open(QFile::WriteOnly)) {
+        qWarning() << "open file failed" << file.fileName() << file.errorString();
+        return file.errorString();
+    }
+
+    QJsonArray array;
+    //直接取子节点，忽略根节点的信息
+    int count = mRootNode->childCount();
+    for (int i = 0; i < count; ++i) {
+        addTreeToArray(mRootNode->child(i), array);
+    }
+
+    QJsonObject rootObj;
+    rootObj["data"] = array;
+    QJsonDocument doc;
+    doc.setObject(rootObj);
+    file.write(doc.toJson());
+    file.flush();
+    file.close();
     return QString();
 }
 
@@ -129,19 +170,29 @@ bool TreeModel::hasChildren(const QModelIndex &parent) const {
     }
 }
 
-
-
-//bool TreeModel::setData(const QModelIndex &index, const QVariant &value, int role) {
-//}
+bool TreeModel::setData(const QModelIndex &index, const QVariant &value, int role) {
+    if (role != Qt::EditRole) return false;
+    TreeNode *node = getNode(index);
+    auto column = index.column();
+    auto data = node->data();
+    if (column < data.length()) {
+        data[column] = value;
+        node->setData(data);
+        emit dataChanged(index, index);
+        return true;
+    } else {
+        return false;
+    }
+}
 
 QHash<int, QByteArray> TreeModel::roleNames() const {
     return mRoleNameMap;
 }
 
-//Qt::ItemFlag TreeModel::flags(const QModelIndex &index) const {
-//    if (!index.isValid()) return 0;
-//    return QAbstractItemModel::flags(index) | Qt::ItemIsEditable;
-//}
+Qt::ItemFlags TreeModel::flags(const QModelIndex &index) const {
+    if (!index.isValid()) return 0;
+    return QAbstractItemModel::flags(index) | Qt::ItemIsEditable;
+}
 
 
 
