@@ -11,10 +11,8 @@ TreeModel::TreeModel(QObject *parent) : QAbstractItemModel(parent) {
     mRoleNameMap[TreeModelRoleName] = "name";
     mRoleNameMap[TreeModelRoleBirthday] = "birthday";
     mRootNode = new TreeNode;
-    QVariantList vlist;
-    vlist.append("root");
-    vlist.append("2018-01-01");
-    mRootNode->setData(vlist);
+    mRootNode->appendData("");
+    mRootNode->appendData("");
 }
 TreeModel::~TreeModel() {
     delete mRootNode;
@@ -23,14 +21,11 @@ TreeModel::~TreeModel() {
 void addArrayToTree (TreeNode *node, const QJsonArray &array) {
     TreeNode *newNode = nullptr;
     QJsonArray subArray;
-    QVariantList vlist;
     for (const auto &i : array) {
         auto obj = i.toObject();
         newNode = new TreeNode(node);
-        vlist.clear();
-        vlist.append(obj["name"].toVariant());
-        vlist.append(obj["birthday"].toVariant());
-        newNode->setData(vlist);
+        newNode->appendData(obj["name"].toVariant());
+        newNode->appendData(obj["birthday"].toVariant());
         node->appendChild(newNode);
         subArray = obj["progeniture"].toArray();
         if (!subArray.isEmpty()) {
@@ -40,11 +35,10 @@ void addArrayToTree (TreeNode *node, const QJsonArray &array) {
 }
 void addTreeToArray (const TreeNode *node, QJsonArray &array) {
     if (node) {
-        auto data = node->data();
         QJsonObject obj;
-        if (data.length() >= 2) {
-            obj["name"] = data.at(0).toString();
-            obj["birthday"] = data.at(1).toString();
+        if (node->dataCount() >= 2) {
+            obj["name"] = node->data(0).toString();
+            obj["birthday"] = node->data(1).toString();
         }
         int count = node->childCount();
         if (count > 0) {
@@ -121,7 +115,7 @@ QVariant TreeModel::data(const QModelIndex &index, int role) const {
     }
     if (role == TreeModelRoleName || role == TreeModelRoleBirthday) {
         auto node = getNode(index);
-        return node->data().value(role - TreeModelRoleName);
+        return node->data(role - TreeModelRoleName);
     } else {
         return QVariant();
     }
@@ -154,7 +148,7 @@ QModelIndex TreeModel::parent(const QModelIndex &child) const {
 
 int TreeModel::columnCount(const QModelIndex &parent) const {
     Q_UNUSED(parent)
-    return mRootNode->data().length();
+    return mRootNode->dataCount();
 }
 int TreeModel::rowCount(const QModelIndex &parent) const {
     return getNode(parent)->childCount();
@@ -174,10 +168,8 @@ bool TreeModel::setData(const QModelIndex &index, const QVariant &value, int rol
     if (role != Qt::EditRole) return false;
     TreeNode *node = getNode(index);
     auto column = index.column();
-    auto data = node->data();
-    if (column < data.length()) {
-        data[column] = value;
-        node->setData(data);
+    if (column < node->dataCount()) {
+        node->setData(column, value);
         emit dataChanged(index, index);
         return true;
     } else {
@@ -193,6 +185,3 @@ Qt::ItemFlags TreeModel::flags(const QModelIndex &index) const {
     if (!index.isValid()) return 0;
     return QAbstractItemModel::flags(index) | Qt::ItemIsEditable;
 }
-
-
-

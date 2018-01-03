@@ -18,13 +18,17 @@ public:
             delete child;
         }
     }
-    void setData (const QVariantList &data) { mData = data;}
+    void appendData (const QVariant &data) { mDatas.append(data);}
+
+    //请确保0 <= index < dataCount。
+    void setData(int index, const QVariant &data) {mDatas[index] = data;}
     TreeNode *child(int index) const { return mChildrenList.value(index);}
     TreeNode *parent() const { return mParent;}
     int childCount() const { return mChildrenList.count();}
-    QVariantList data() const { return mData;}
+    QVariant data(int index) const { return mDatas.at(index);}
+    int dataCount() const {return mDatas.count();}
 private:
-    QVariantList mData;
+    QVector<QVariant> mDatas;
     TreeNode *mParent = nullptr;
     QList<TreeNode *> mChildrenList;
 };
